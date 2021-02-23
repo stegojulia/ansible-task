@@ -1,0 +1,42 @@
+- hosts: localhost
+  connection: local
+  become:
+    tasks:
+    - name: 'install dependencies'
+      apt:
+        pkg:
+        - apt-transport-https 
+        - ca-certificates
+        - curl
+        - software-properties-common
+        - python3
+        - python3-pip
+        - python-setuptools
+    - name: 'get the docker apt'
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    - name: "add the apt repo"
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+    - name: "install docker-ce":
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+    - name: "Docker is started"
+      service:
+        name: docker
+        state: started
+    - name: "Install Dockers pip package"
+      pip:
+        name: docker
+        executable: pip3 
+    - name: "adding julia user to docker group"
+      user:
+        name: julia
+        groups: docker
+        append: yes
+    - name: "reset the connection"
+      meta: reset_connection
+    
